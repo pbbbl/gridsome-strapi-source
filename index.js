@@ -34,18 +34,23 @@ module.exports = function (api, options) {
     return Promise.all([
       Promise.all(contentTypes.map(resourceName => {
         const typeName = upperFirst(camelCase(`${options.typeName} ${resourceName}`))
-        const collection = addCollection({ typeName, dateField: 'created_at' })
+        const collection = addCollection({ typeName, dateField: 'createdAt' })
         const isSingleType = false
         return query({ apiURL, resourceName, jwtToken, queryLimit, isSingleType })
-        .then(docs => {
-          for (const docKey in docs) {
-            collection.addNode(docs[docKey])
-          }
-        })
+          .then((res) => res.data.forEach(item=>{
+            const doc = {
+
+                id: item.id,
+                ...item,
+                ...item.attributes,
+            }
+            console.log('{doc,res}',{doc,res})
+            collection.addNode(doc)
+          }));
       })),
       Promise.all(singleTypes.map(resourceName => {
         const typeName = upperFirst(camelCase(`${options.typeName} ${resourceName}`))
-        const collection = addCollection({ typeName, dateField: 'created_at' })
+        const collection = addCollection({ typeName, dateField: 'createdAt' })
         const isSingleType = true
         return query({ apiURL, resourceName, jwtToken, queryLimit, isSingleType })
           .then(data => collection.addNode(data))
@@ -53,7 +58,6 @@ module.exports = function (api, options) {
     )
   })
 }
-
 module.exports.defaultOptions = () => ({
   apiURL: 'http://localhost:1337',
   contentTypes: [],
