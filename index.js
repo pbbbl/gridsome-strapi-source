@@ -4,7 +4,7 @@ const { trimEnd, upperFirst, camelCase } = require('lodash')
 
 module.exports = function (api, options) {
   api.loadSource(async ({ addCollection }) => {
-    const { queryLimit, contentTypes, singleTypes, loginData } = options
+    const { qso, contentTypes, singleTypes, loginData } = options
     const apiURL = trimEnd(options.apiURL, '/')
     let jwtToken = null
 
@@ -36,7 +36,7 @@ module.exports = function (api, options) {
         const typeName = upperFirst(camelCase(`${options.typeName} ${resourceName}`))
         const collection = addCollection({ typeName, dateField: 'createdAt' })
         const isSingleType = false
-        return query({ apiURL, resourceName, jwtToken, queryLimit, isSingleType })
+        return query({ apiURL, resourceName, jwtToken, qso, isSingleType })
           .then((res) => res.data.forEach(item=>{
             const doc = {
 
@@ -52,7 +52,7 @@ module.exports = function (api, options) {
         const typeName = upperFirst(camelCase(`${options.typeName} ${resourceName}`))
         const collection = addCollection({ typeName, dateField: 'createdAt' })
         const isSingleType = true
-        return query({ apiURL, resourceName, jwtToken, queryLimit, isSingleType })
+        return query({ apiURL, resourceName, jwtToken, qso, isSingleType })
           .then(data => collection.addNode(data))
       }))]
     )
@@ -63,6 +63,9 @@ module.exports.defaultOptions = () => ({
   contentTypes: [],
   singleTypes: [],
   loginData: {},
-  queryLimit: 100,
+    qso: {
+        _limit: 100,
+        populate:'*'
+    },
   typeName: 'Strapi'
 })
